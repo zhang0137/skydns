@@ -4,23 +4,9 @@
 
 package server
 
-import (
-	"github.com/coreos/go-etcd/etcd"
-)
+import "github.com/miekg/skydns/msg"
 
-// get is a wrapper for client.Get that uses SingleInflight to suppress multiple
-// outstanding queries.
-func get(client *etcd.Client, path string, recursive bool) (*etcd.Response, error) {
-	resp, err, _ := etcdInflight.Do(path, func() (*etcd.Response, error) {
-		r, e := client.Get(path, false, recursive)
-		if e != nil {
-			return nil, e
-		}
-		return r, e
-	})
-	if err != nil {
-		return resp, err
-	}
-	// shared?
-	return resp, err
+type Getter interface {
+	Records(path string, recursive bool) ([]msg.Service, error)
+	// Config
 }

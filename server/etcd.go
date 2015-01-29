@@ -23,6 +23,7 @@ func (client *etc) Records(path string, recursive bool) ([]msg.Service, error) {
 	if err != nil {
 		return nil, err
 	}
+	sx ,err := 
 	// process them to msg.Service and use those in server.go
 	return nil, nil
 }

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/coreos/go-etcd/etcd"
-	"github.com/miekg/skydns/msg"
+	"github.com/skynetservices/skydns/msg"
 )
 
 // Ectd implementation
@@ -18,14 +18,32 @@ type etc struct {
 	c *etcd.Client
 }
 
-func (client *etc) Records(path string, recursive bool) ([]msg.Service, error) {
-	response, err := get(client.c, path, recursive)
+func (client *etc) Records(p string, rec bool) ([]*msg.Service, error) {
+	path, star := msg.PathWithWildcard(p)
+	r, err := get(client.c, path, rec)
 	if err != nil {
 		return nil, err
 	}
-	sx ,err := 
-	// process them to msg.Service and use those in server.go
-	return nil, nil
+	if !r.Node.Dir {
+		serv := new(msg.Service)
+		if err := json.Unmarshal([]byte(r.Node.Value), serv); err != nil {
+			return nil, err
+		}
+		ttl := calculateTtl(r.Node, serv)
+		serv.Key = r.Node.Key
+		serv.Ttl = ttl
+		return []*msg.Service{serv}, nil
+	}
+	sx, err := loopNodes(&r.Node.Nodes, strings.Split(p, "/"), star, nil)
+	if err != nil || len(sx) == 0 {
+		return nil, err
+	}
+	for _, serv := range sx {
+		ttl := calculateTtl(r.Node, serv)
+		serv.Key = r.Node.Key
+		serv.Ttl = ttl
+	}
+	return sx, nil
 }
 
 // get is a wrapper for client.Get that uses SingleInflight to suppress multiple outstanding queries.
@@ -67,7 +85,7 @@ func loopNodes(n *etcd.Nodes, nameParts []string, star bool, bx map[bareService]
 Nodes:
 	for _, n := range *n {
 		if n.Dir {
-			nodes, err := s.loopNodes(&n.Nodes, nameParts, star, bx)
+			nodes, err := loopNodes(&n.Nodes, nameParts, star, bx)
 			if err != nil {
 				return nil, err
 			}
@@ -98,10 +116,7 @@ Nodes:
 			continue
 		}
 		bx[b] = true
-		serv.Ttl = s.calculateTtl(n, serv)
-		if serv.Priority == 0 {
-			serv.Priority = int(s.config.Priority)
-		}
+		serv.Ttl = calculateTtl(n, serv)
 		serv.Key = n.Key
 		sx = append(sx, serv)
 	}
@@ -109,15 +124,10 @@ Nodes:
 }
 
 // calculateTtl returns the smaller of the etcd TTL and the service's
-// TTL. If neither of these are set (have a zero value), the server
-// default is used.
-// need config
-func (s *server) calculateTtl(node *etcd.Node, serv *msg.Service) uint32 {
+// TTL. If neither of these are set (have a zero value), it leave it at zero.
+func calculateTtl(node *etcd.Node, serv *msg.Service) uint32 {
 	etcdTtl := uint32(node.TTL)
 
-	if etcdTtl == 0 && serv.Ttl == 0 {
-		return s.config.Ttl
-	}
 	if etcdTtl == 0 {
 		return serv.Ttl
 	}

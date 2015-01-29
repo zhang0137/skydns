@@ -76,7 +76,7 @@ func LoadConfig(client *etcd.Client, config *Config) (*Config, error) {
 	config.log = log.New("skydns", false,
 		log.CombinedSink(os.Stderr, "[%s] %s %-9s | %s\n", []string{"prefix", "time", "priority", "message"}))
 
-	// Override wat isn't set yet from the command line.
+	// Override what isn't set yet from the command line.
 	n, err := client.Get("/skydns/config", false, false)
 	if err != nil {
 		config.log.Info("falling back to default configuration, could not read from etcd:", err)

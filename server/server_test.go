@@ -750,6 +750,11 @@ var dnsTestCases = []dnsTestCase{
 		Rcode: dns.RcodeServerFailure,
 		chaos: true,
 	},
+	// ANY query test, return notimp.
+	{
+		Qname: "104.server1.development.region1.skydns.test.", Qtype: dns.TypeANY,
+		Rcode: dns.RcodeNotImplemented,
+	},
 }
 
 func newA(rr string) *dns.A           { r, _ := dns.NewRR(rr); return r.(*dns.A) }

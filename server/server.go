@@ -178,7 +178,7 @@ func (s *server) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 
 	if req.Question[0].Qtype == dns.TypeANY {
 		m.Authoritative = false
-		m.Rcode = dns.RcodeRefused
+		m.Rcode = dns.RcodeNotImplemented
 		m.RecursionAvailable = false
 		m.RecursionDesired = false
 		m.Compress = false
@@ -429,7 +429,7 @@ func (s *server) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 		m.Answer = append(m.Answer, records...)
 	default:
 		fallthrough // also catch other types, so that they return NODATA
-	case dns.TypeSRV, dns.TypeANY:
+	case dns.TypeSRV:
 		records, extra, err := s.SRVRecords(q, name, bufsize, dnssec)
 		if err != nil {
 			if e, ok := err.(*etcd.EtcdError); ok {
@@ -440,10 +440,10 @@ func (s *server) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 			}
 		}
 		// if we are here again, check the types, because an answer may only
-		// be given for SRV or ANY. All other types should return NODATA, the
+		// be given for SRV. All other types should return NODATA, the
 		// NXDOMAIN part is handled in the above code. TODO(miek): yes this
 		// can be done in a more elegant manor.
-		if q.Qtype == dns.TypeSRV || q.Qtype == dns.TypeANY {
+		if q.Qtype == dns.TypeSRV {
 			m.Answer = append(m.Answer, records...)
 			m.Extra = append(m.Extra, extra...)
 		}

@@ -394,7 +394,7 @@ var services = []*msg.Service{
 	{Text: "abc", Key: "a1.txt.skydns.test."},
 	{Text: "abc abc", Key: "a2.txt.skydns.test."},
 	// underscore records
-	{Host: "10.10.10.10", Key: "%F5tcp.%F5http.skydns.test."},
+	{Host: "10.10.10.10", Key: "\\_tcp.\\_http.skydns.test."},
 }
 
 var dnsTestCases = []dnsTestCase{

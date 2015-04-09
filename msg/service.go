@@ -12,8 +12,10 @@ import (
 	"github.com/miekg/dns"
 )
 
-// Escape the _ for Etcd. It otherwise creates a hidden value.
-const underScore = "%F5"
+// HACK: Escape the _ for Etcd. A key starting with a prefix is a hidden name in Etcd.
+// You can query for them directly, but the results won't be included in recursive queries.
+// This is somewhat unexpected.
+const underScore = "\\_"
 
 // This *is* the rdata from a SRV record, but with a twist.
 // Host (Target in SRV) must be a domain name, but if it looks like an IP

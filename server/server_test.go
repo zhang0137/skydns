@@ -393,6 +393,8 @@ var services = []*msg.Service{
 	// txt
 	{Text: "abc", Key: "a1.txt.skydns.test."},
 	{Text: "abc abc", Key: "a2.txt.skydns.test."},
+	// underscore records
+	{Host: "10.10.10.10", Key: "%F5tcp.%F5http.skydns.test."},
 }
 
 var dnsTestCases = []dnsTestCase{
@@ -749,6 +751,11 @@ var dnsTestCases = []dnsTestCase{
 		Qname: "local.dns.skydns.test.", Qtype: dns.TypeA,
 		Rcode: dns.RcodeServerFailure,
 		chaos: true,
+	},
+	// labels starting with underscores
+	{
+		Qname: "_tcp._http.skydns.test.", Qtype: dns.TypeA,
+		Answer: []dns.RR{newA("_tcp._http.skydns.test 3600 IN A 10.10.10.10")},
 	},
 }
 

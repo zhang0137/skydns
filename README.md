@@ -468,6 +468,13 @@ to work we create the hosts named `x{1,2,3}.db.skydns.local` in etcd:
 Now the name `db.skydns.local` is the "load balanced" name for the database, SkyDNS
 will round-robin by default in this case unless `-round-robin=false` is enabled.
 
+## Underscores in Names (When Using Etcd as a backend)
+Ectd has a feature which allows you to create
+[hidden names](https://coreos.com/docs/distributed-configuration/etcd-api/#creating-a-hidden-node). This
+means for SkyDNS that names starting with a underscore (`_tcp`) will not work as expected. This is especially
+annoying because such names are commonplace when using SRV records. To overcome this SkyDNS will translate
+a underscore to `%f5` before doing the lookup in Etcd and vice versa when replying.
+
 # Docker
 Official Docker images are at the [Docker Hub](https://registry.hub.docker.com/u/skynetservices/skydns/):
 

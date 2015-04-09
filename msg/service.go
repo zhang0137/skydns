@@ -12,6 +12,9 @@ import (
 	"github.com/miekg/dns"
 )
 
+// Escape the _ for Etcd. It otherwise creates a hidden value.
+const underScore = "%f5"
+
 // This *is* the rdata from a SRV record, but with a twist.
 // Host (Target in SRV) must be a domain name, but if it looks like an IP
 // address (4/6), we will treat it like an IP address.
@@ -73,12 +76,14 @@ func PathWithWildcard(s string) (string, bool) {
 		l[i], l[j] = l[j], l[i]
 	}
 	for i, k := range l {
-		if k == "*" {
-			return path.Join(append([]string{"/skydns/"}, l[:i]...)...), true
-		}
 		if strings.HasPrefix(k, "_") {
 			// escape leading _ to avoid etcd treating the key as hidden
-			l[i] = strings.Replace(k, "_", "%5F", 1)
+			l[i] = strings.Replace(k, "_", underScore, 1)
+		}
+	}
+	for i, k := range l {
+		if k == "*" {
+			return path.Join(append([]string{"/skydns/"}, l[:i]...)...), true
 		}
 	}
 	return path.Join(append([]string{"/skydns/"}, l...)...), false
@@ -93,8 +98,7 @@ func Path(s string) string {
 	}
 	for i, k := range l {
 		if strings.HasPrefix(k, "_") {
-			// escape leading _ to avoid etcd treating the key as hidden
-			l[i] = strings.Replace(k, "_", "%5F", 1)
+			l[i] = strings.Replace(k, "_", underScore, 1)
 		}
 	}
 	return path.Join(append([]string{"/skydns/"}, l...)...)
@@ -108,9 +112,8 @@ func Domain(s string) string {
 		l[i], l[j] = l[j], l[i]
 	}
 	for i, k := range l {
-		if strings.HasPrefix(k, "%5F") {
-			// un-escape etcd hidden key prefix
-			l[i] = strings.Replace(k, "%5F", "_", 1)
+		if strings.HasPrefix(k, underScore) {
+			l[i] = strings.Replace(k, underScore, "_", 1)
 		}
 	}
 	return dns.Fqdn(strings.Join(l[1:len(l)-1], "."))

@@ -40,24 +40,23 @@ func TestSplit255(t *testing.T) {
 	}
 }
 
-func testDomainPath(t *testing.T, domain string, expected string) {
-	path := Path(domain)
-	if path != expected {
-		t.Logf("Path %s\n", domain)
-		t.Logf("%s %v\n", path, expected)
-		t.Fail()
+func TestDomainPath(t *testing.T) {
+	tests := []string{
+		"test.skydns.local.", "/skydns/local/skydns/test",
+		"_ldap._tcp.skydns.local.", "/skydns/local/skydns/" + underScore + "tcp/" + underScore + "ldap",
+		"l_dap.skydns.local.", "/skydns/local/skydns/l_dap",
 	}
 
-	roundtrip := Domain(path)
-	if roundtrip != domain + "." {
-		t.Logf("Domain %s\n", path)
-		t.Logf("%s %v\n", roundtrip, domain)
-		t.Fail()
+	for i := 0; i < len(tests)-1; i += 2 {
+		path := Path(tests[i])
+		if path != tests[i+1] {
+			t.Logf("Path %s: expected %s got %s\n", tests[i], tests[i+1], path)
+			t.Fail()
+		}
+		roundtrip := Domain(path)
+		if roundtrip != tests[i] {
+			t.Logf("Domain %s: expect %s got %s\n", path, tests[i], roundtrip)
+			t.Fail()
+		}
 	}
-}
-
-
-func TestPath(t *testing.T) {
-	testDomainPath(t, "test.skydns.local", "/skydns/local/skydns/test")
-	testDomainPath(t, "_ldap._tcp.skydns.local", "/skydns/local/skydns/%5Ftcp/%5Fldap")
 }

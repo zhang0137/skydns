@@ -637,6 +637,8 @@ func (s *server) MXRecords(q dns.Question, name string, bufsize uint16, dnssec b
 		return nil, nil, err
 	}
 
+	services = msg.Group(services)
+
 	lookup := make(map[string]bool)
 	for _, serv := range services {
 		if !serv.Mail {

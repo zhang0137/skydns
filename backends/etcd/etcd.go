@@ -9,6 +9,7 @@ package etcd
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"sync"
 
@@ -115,6 +116,7 @@ func (g *Backend) loopNodes(n *etcd.Nodes, nameParts []string, star bool, bx map
 	if bx == nil {
 		bx = make(map[bareService]bool)
 	}
+
 Nodes:
 	for _, n := range *n {
 		if n.Dir {
@@ -142,6 +144,7 @@ Nodes:
 		}
 		serv := new(msg.Service)
 		if err := json.Unmarshal([]byte(n.Value), serv); err != nil {
+			log.Printf("skydns: failed for %s: %s", strings.Join(nameParts, "/"), err)
 			return nil, err
 		}
 		b := bareService{serv.Host, serv.Port, serv.Priority, serv.Weight, serv.Text}

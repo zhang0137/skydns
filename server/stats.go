@@ -111,7 +111,7 @@ func Metrics() {
 		Name:      "dns_response_size",
 		Help:      "Size of the returns response in bytes.",
 		// Powers of 2 up to the maximum size.
-		Buckets: []float64{0, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536},
+		Buckets: []float64{0, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536},
 	}, []string{"type"}) // udp, tcp
 	prometheus.MustRegister(promResponseSize)
 

@@ -26,6 +26,7 @@ var (
 	promExternalRequestCount *prometheus.CounterVec
 	promRequestCount         *prometheus.CounterVec
 	promErrorCount           *prometheus.CounterVec
+	promBackendFailureCount  *prometheus.CounterVec
 	promCacheSize            *prometheus.GaugeVec
 	promCacheMiss            *prometheus.CounterVec
 	promRequestDuration      *prometheus.HistogramVec
@@ -63,6 +64,14 @@ func Metrics() {
 		Help:      "Counter of DNSSEC requests.",
 	})
 	prometheus.MustRegister(promDnssecOkCount) // Maybe more bits here?
+
+	promBackendFailureCount = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Namespace: prometheusNamespace,
+		Subsystem: prometheusSubsystem,
+		Name:      "backend_failure_count",
+		Help:      "Counter of JSON parsing failures.",
+	}, []string{"type"}) // json
+	prometheus.MustRegister(promBackendFailureCount)
 
 	promErrorCount = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Namespace: prometheusNamespace,

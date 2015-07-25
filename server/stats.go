@@ -70,7 +70,7 @@ func Metrics() {
 		Subsystem: prometheusSubsystem,
 		Name:      "backend_failure_count",
 		Help:      "Counter of JSON parsing failures.",
-	}, []string{"type"}) // json
+	}, []string{"type"}) // other, etcd (etcd not used at the moment)
 	prometheus.MustRegister(promBackendFailureCount)
 
 	promErrorCount = prometheus.NewCounterVec(prometheus.CounterOpts{
@@ -123,14 +123,14 @@ func Metrics() {
 
 	_, err := strconv.Atoi(prometheusPort)
 	if err != nil {
-		fatalf("bad port for prometheus: %s", prometheusPort)
+		Fatalf("bad port for prometheus: %s", prometheusPort)
 	}
 
 	http.Handle(prometheusPath, prometheus.Handler())
 	go func() {
-		fatalf("%s", http.ListenAndServe(":"+prometheusPort, nil))
+		Fatalf("%s", http.ListenAndServe(":"+prometheusPort, nil))
 	}()
-	logf("metrics enabled on :%s%s", prometheusPort, prometheusPath)
+	Logf("metrics enabled on :%s%s", prometheusPort, prometheusPath)
 }
 
 // metricSizeAndDuration sets the size and duration metrics.

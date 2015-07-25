@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"math/rand"
 	"net"
 	"net/url"
@@ -80,17 +79,17 @@ func main() {
 	if nameserver != "" {
 		for _, hostPort := range strings.Split(nameserver, ",") {
 			if err := validateHostPort(hostPort); err != nil {
-				log.Fatalf("skydns: nameserver is invalid: %s", err)
+				server.Fatalf("nameserver is invalid: %s", err)
 			}
 			config.Nameservers = append(config.Nameservers, hostPort)
 		}
 	}
 	if err := validateHostPort(config.DnsAddr); err != nil {
-		log.Fatalf("skydns: addr is invalid: %s", err)
+		server.Fatalf("addr is invalid: %s", err)
 	}
 
 	if err := loadConfig(client, config); err != nil {
-		log.Fatalf("skydns: %s", err)
+		server.Fatalf("%s", err)
 	}
 	server.SetDefaults(config)
 
@@ -119,7 +118,7 @@ func main() {
 						duration = 1 * time.Second // reset
 					} else {
 						// we can see an n == nil, probably when we can't connect to etcd.
-						log.Printf("skydns: etcd machine cluster update failed, sleeping %s + ~3s", duration)
+						server.Logf("etcd machine cluster update failed, sleeping %s + ~3s", duration)
 						time.Sleep(duration + (time.Duration(rand.Float32() * 3e9))) // Add some random.
 						duration *= 2
 						if duration > 32*time.Second {
@@ -142,11 +141,11 @@ func main() {
 				case n := <-recv:
 					if n != nil {
 						s.UpdateStubZones()
-						log.Printf("skydns: stubzone update")
+						server.Logf("stubzone update")
 						duration = 1 * time.Second // reset
 					} else {
 						// we can see an n == nil, probably when we can't connect to etcd.
-						log.Printf("skydns: stubzone update failed, sleeping %s + ~3s", duration)
+						server.Logf("stubzone update failed, sleeping %s + ~3s", duration)
 						time.Sleep(duration + (time.Duration(rand.Float32() * 3e9))) // Add some random.
 						duration *= 2
 						if duration > 32*time.Second {
@@ -162,7 +161,7 @@ func main() {
 	server.Metrics() // Prometheus
 
 	if err := s.Run(); err != nil {
-		log.Fatalf("skydns: %s", err)
+		server.Fatalf("%s", err)
 	}
 }
 
@@ -170,7 +169,7 @@ func loadConfig(client *etcd.Client, config *server.Config) error {
 	// Override what isn't set yet from the command line.
 	n, err := client.Get("/"+msg.PathPrefix+"/config", false, false)
 	if err != nil {
-		log.Printf("skydns: falling back to default configuration, could not read from etcd: %s", err)
+		server.Logf("falling back to default configuration, could not read from etcd: %s", err)
 		return nil
 	}
 	if err := json.Unmarshal([]byte(n.Node.Value), config); err != nil {
@@ -204,7 +203,7 @@ func newClient(machines []string, tlsCert, tlsKey, tlsCACert string) (client *et
 		// TODO(miek): machines is local, the rest is global, ugly.
 		if client, err = etcd.NewTLSClient(machines, tlsCert, tlsKey, tlsCACert); err != nil {
 			// TODO(miek): would be nice if this wasn't a fatal error
-			log.Fatalf("skydns: failure to connect: %s", err)
+			server.Fatalf("failure to connect: %s", err)
 		}
 		return client
 	}
@@ -236,7 +235,7 @@ func updateClient(resp *etcd.Response, tlsCert, tlsKey, tlsCACert string) (clien
 	// Keep the old ones and hope they still work and wait for another update
 	// in the future.
 	if len(machines) > 0 {
-		log.Printf("skydns: setting new etcd cluster to %v", machines)
+		server.Logf("setting new etcd cluster to %v", machines)
 		return newClient(machines, tlsCert, tlsKey, tlsCACert)
 	}
 	return nil

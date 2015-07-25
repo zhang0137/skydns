@@ -36,7 +36,7 @@ func (s *server) UpdateStubZones() {
 
 	services, err := s.backend.Records("stub.dns."+s.config.Domain, false)
 	if err != nil {
-		logf("stub zone update failed: %s", err)
+		Logf("stub zone update failed: %s", err)
 		return
 	}
 	for _, serv := range services {
@@ -45,7 +45,7 @@ func (s *server) UpdateStubZones() {
 		}
 		ip := net.ParseIP(serv.Host)
 		if ip == nil {
-			logf("stub zone non-address %s seen for: %s", serv.Key, serv.Host)
+			Logf("stub zone non-address %s seen for: %s", serv.Key, serv.Host)
 			continue
 		}
 
@@ -57,7 +57,7 @@ func (s *server) UpdateStubZones() {
 
 		// If the remaining name equals s.config.LocalDomain we ignore it.
 		if domain == s.config.localDomain {
-			logf("not adding stub zone for my own domain")
+			Logf("not adding stub zone for my own domain")
 			continue
 		}
 		stubmap[domain] = append(stubmap[domain], net.JoinHostPort(serv.Host, strconv.Itoa(serv.Port)))
@@ -78,7 +78,7 @@ func (s *server) ServeDNSStubForward(w dns.ResponseWriter, req *dns.Msg, ns []st
 			if o.Option() == ednsStubCode && len(o.(*dns.EDNS0_LOCAL).Data) == 1 &&
 				o.(*dns.EDNS0_LOCAL).Data[0] == 1 {
 				// Maybe log source IP here?
-				logf("not fowarding stub request to another stub")
+				Logf("not fowarding stub request to another stub")
 				return nil
 			}
 		}
@@ -123,7 +123,7 @@ Redo:
 		goto Redo
 	}
 
-	logf("failure to forward stub request %q", err)
+	Logf("failure to forward stub request %q", err)
 	m := new(dns.Msg)
 	m.SetReply(req)
 	m.SetRcode(req, dns.RcodeServerFailure)

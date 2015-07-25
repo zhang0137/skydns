@@ -6,12 +6,30 @@ package server
 
 import "log"
 
-// printf calls log.Printf with the parameters given.
-func logf(format string, a ...interface{}) {
+type BackendFailure int
+
+const (
+	etcdFailure BackendFailure = iota + 1
+	otherFailure
+)
+
+// Printf calls log.Printf with the parameters given.
+func Logf(format string, a ...interface{}) {
 	log.Printf("skydns: "+format, a...)
 }
 
-// fatalf calls log.Fatalf with the parameters given.
-func fatalf(format string, a ...interface{}) {
+// Fatalf calls log.Fatalf with the parameters given.
+func Fatalf(format string, a ...interface{}) {
 	log.Fatalf("skydns: "+format, a...)
+}
+
+// log and Inc the promBackendFailureCount{type="typ"}.
+func logBackendFailure(typ BackendFailure, format string, a ...interface{}) {
+	Logf(format, a...)
+	switch typ {
+	case otherFailure:
+		promBackendFailureCount.WithLabelValues("other").Inc()
+	case etcdFailure:
+		promBackendFailureCount.WithLabelValues("etcd").Inc()
+	}
 }

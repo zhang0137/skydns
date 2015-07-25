@@ -4,7 +4,12 @@
 
 package server
 
-import "log"
+import (
+	"log"
+	"time"
+
+	"github.com/miekg/dns"
+)
 
 type BackendFailure int
 
@@ -32,4 +37,18 @@ func logBackendFailure(typ BackendFailure, format string, a ...interface{}) {
 	case etcdFailure:
 		promBackendFailureCount.WithLabelValues("etcd").Inc()
 	}
+}
+
+// metricSizeAndDuration sets the size and duration metrics.
+func metricSizeAndDuration(resp *dns.Msg, start time.Time, tcp bool) {
+	net := "udp"
+	rlen := float64(0)
+	if tcp {
+		net = "tcp"
+	}
+	if resp != nil {
+		rlen = float64(resp.Len())
+	}
+	promRequestDuration.WithLabelValues(net).Observe(float64(time.Since(start)) / float64(time.Second))
+	promResponseSize.WithLabelValues(net).Observe(rlen)
 }

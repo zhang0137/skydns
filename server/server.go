@@ -243,6 +243,7 @@ func (s *server) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 			if req.Question[0].Qtype == dns.TypeA || req.Question[0].Qtype == dns.TypeAAAA {
 				s.RoundRobin(m1.Answer)
 			}
+			m1 = sortCNAMEs(m1)
 
 			if err := w.WriteMsg(m1); err != nil {
 				logf("failure to return reply %q", err)
@@ -298,6 +299,7 @@ func (s *server) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 		// Set TTL to the minimum of the RRset and dedup the message, i.e.
 		// remove identical RRs.
 		m = s.dedup(m)
+		m = sortCNAMEs(m)
 
 		minttl := s.config.Ttl
 		if len(m.Answer) > 1 {
@@ -851,17 +853,6 @@ func (s *server) RoundRobin(rrs []dns.RR) {
 	if !s.config.RoundRobin {
 		return
 	}
-	// If we have more than 1 CNAME don't touch the packet, because some stub resolver (=glibc)
-	// can't deal with the returned packet if the CNAMEs need to be accesses in the reverse order.
-	cname := 0
-	for _, r := range rrs {
-		if r.Header().Rrtype == dns.TypeCNAME {
-			cname++
-			if cname > 1 {
-				return
-			}
-		}
-	}
 
 	switch l := len(rrs); l {
 	case 2:
@@ -888,9 +879,7 @@ func (s *server) dedup(m *dns.Msg) *dns.Msg {
 	ma := make(map[string]dns.RR)
 	for _, a := range m.Answer {
 		// Or use Pack()... Think this function also could be placed in go dns.
-		s1 := a.Header().Name
-		s1 += strconv.Itoa(int(a.Header().Class))
-		s1 += strconv.Itoa(int(a.Header().Rrtype))
+		s1 := makeMapKey(a)
 		// there can only be one CNAME for an ownername
 		if a.Header().Rrtype == dns.TypeCNAME {
 			if _, ok := ma[s1]; ok {
@@ -924,9 +913,7 @@ func (s *server) dedup(m *dns.Msg) *dns.Msg {
 	// Additional section
 	me := make(map[string]dns.RR)
 	for _, e := range m.Extra {
-		s1 := e.Header().Name
-		s1 += strconv.Itoa(int(e.Header().Class))
-		s1 += strconv.Itoa(int(e.Header().Rrtype))
+		s1 := makeMapKey(e)
 		// there can only be one CNAME for an ownername
 		if e.Header().Rrtype == dns.TypeCNAME {
 			if _, ok := me[s1]; ok {
@@ -954,6 +941,30 @@ func (s *server) dedup(m *dns.Msg) *dns.Msg {
 		m.Extra = m.Extra[:len(me)]
 	}
 
+	return m
+}
+
+func makeMapKey(r dns.RR) string {
+	s := r.Header().Name
+	s += strconv.Itoa(int(r.Header().Class))
+	s += strconv.Itoa(int(r.Header().Rrtype))
+	return s
+}
+
+// sortCNAMEs sorts the CNAMEs (if any) in the answer section before any of the other records.
+func sortCNAMEs(m *dns.Msg) *dns.Msg {
+	if len(m.Answer) < 2 {
+		return m
+	}
+
+	lastNonCNAME := -1
+	for i, r := range m.Answer {
+		if r.Header().Rrtype == dns.TypeCNAME && lastNonCNAME != -1 {
+			m.Answer[i], m.Answer[lastNonCNAME] = m.Answer[lastNonCNAME], m.Answer[i]
+			continue
+		}
+		lastNonCNAME = i
+	}
 	return m
 }
 

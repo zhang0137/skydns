@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"math"
 	"net"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -21,6 +20,8 @@ import (
 )
 
 const Version = "2.5.2b"
+
+var test = false // set to true when testing: disables logging
 
 type server struct {
 	backend Backend
@@ -881,76 +882,9 @@ func (s *server) RoundRobin(rrs []dns.RR) {
 // dedup will de-duplicate a message on a per section basis.
 // Multiple identical (same name, class, type and rdata) RRs will be coalesced into one.
 func (s *server) dedup(m *dns.Msg) *dns.Msg {
-	// Answer section
-	ma := make(map[string]dns.RR)
-	for _, a := range m.Answer {
-		// Or use Pack()... Think this function also could be placed in go dns.
-		s1 := a.Header().Name
-		s1 += strconv.Itoa(int(a.Header().Class))
-		s1 += strconv.Itoa(int(a.Header().Rrtype))
-		// there can only be one CNAME for an ownername
-		if a.Header().Rrtype == dns.TypeCNAME {
-			if _, ok := ma[s1]; ok {
-				// already exist, randomly overwrite if roundrobin is true
-				// Note: even with roundrobin *off* this depends on the
-				// order we get the names.
-				if s.config.RoundRobin && dns.Id()%2 == 0 {
-					ma[s1] = a
-					continue
-				}
-			}
-			ma[s1] = a
-			continue
-		}
-		for i := 1; i <= dns.NumField(a); i++ {
-			s1 += dns.Field(a, i)
-		}
-		ma[s1] = a
-	}
-	// Only is our map is smaller than the #RR in the answer section we should reset the RRs
-	// in the section it self
-	if len(ma) < len(m.Answer) {
-		i := 0
-		for _, v := range ma {
-			m.Answer[i] = v
-			i++
-		}
-		m.Answer = m.Answer[:len(ma)]
-	}
-
-	// Additional section
-	me := make(map[string]dns.RR)
-	for _, e := range m.Extra {
-		s1 := e.Header().Name
-		s1 += strconv.Itoa(int(e.Header().Class))
-		s1 += strconv.Itoa(int(e.Header().Rrtype))
-		// there can only be one CNAME for an ownername
-		if e.Header().Rrtype == dns.TypeCNAME {
-			if _, ok := me[s1]; ok {
-				// already exist, randomly overwrite if roundrobin is true
-				if s.config.RoundRobin && dns.Id()%2 == 0 {
-					me[s1] = e
-					continue
-				}
-			}
-			me[s1] = e
-			continue
-		}
-		for i := 1; i <= dns.NumField(e); i++ {
-			s1 += dns.Field(e, i)
-		}
-		me[s1] = e
-	}
-
-	if len(me) < len(m.Extra) {
-		i := 0
-		for _, v := range me {
-			m.Extra[i] = v
-			i++
-		}
-		m.Extra = m.Extra[:len(me)]
-	}
-
+	mapRR := make(map[string]dns.RR)
+	m.Answer = dns.Dedup(m.Answer, mapRR)
+	m.Extra = dns.Dedup(m.Extra, mapRR)
 	return m
 }
 

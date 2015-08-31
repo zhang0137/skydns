@@ -8,10 +8,16 @@ import "log"
 
 // printf calls log.Printf with the parameters given.
 func logf(format string, a ...interface{}) {
+	if test {
+		return
+	}
 	log.Printf("skydns: "+format, a...)
 }
 
 // fatalf calls log.Fatalf with the parameters given.
 func fatalf(format string, a ...interface{}) {
+	if test {
+		return
+	}
 	log.Fatalf("skydns: "+format, a...)
 }

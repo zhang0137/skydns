@@ -5,7 +5,7 @@
 package server
 
 // etcd needs to be running on http://127.0.0.1:4001
-// running standalone tests fails, because metrics need to be enabled. TODO(miek)
+// Running standalone tests fails, because metrics need to be enabled. TODO(miek)
 // See `if !metricsDone {` in TestMsgOverflow, should be added to more? TODO(miek)
 
 import (
@@ -24,6 +24,10 @@ import (
 	"github.com/skynetservices/skydns/cache"
 	"github.com/skynetservices/skydns/msg"
 )
+
+func init(){
+	test = true
+}
 
 // Keep global port counter that increments with 10 for each
 // new call to newTestServer. The dns server is started on port 'Port'.

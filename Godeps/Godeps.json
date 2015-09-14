@@ -62,27 +62,27 @@
 			"Rev": "1ce93efbc8f9c568886b2ef85ce305b2217b3de3"
 		},
 		{
-			"ImportPath": "github.com/skynetservices/skydns/backends/etcd",
+			"ImportPath": "github.com/zhang0137/skydns/backends/etcd",
 			"Comment": "2.5.2c-3-g30ac5c7",
 			"Rev": "30ac5c761ef23202a9ad288560315890a750db82"
 		},
 		{
-			"ImportPath": "github.com/skynetservices/skydns/cache",
+			"ImportPath": "github.com/zhang0137/skydns/cache",
 			"Comment": "2.5.2c-3-g30ac5c7",
 			"Rev": "30ac5c761ef23202a9ad288560315890a750db82"
 		},
 		{
-			"ImportPath": "github.com/skynetservices/skydns/msg",
+			"ImportPath": "github.com/zhang0137/skydns/msg",
 			"Comment": "2.5.2c-3-g30ac5c7",
 			"Rev": "30ac5c761ef23202a9ad288560315890a750db82"
 		},
 		{
-			"ImportPath": "github.com/skynetservices/skydns/server",
+			"ImportPath": "github.com/zhang0137/skydns/server",
 			"Comment": "2.5.2c-3-g30ac5c7",
 			"Rev": "30ac5c761ef23202a9ad288560315890a750db82"
 		},
 		{
-			"ImportPath": "github.com/skynetservices/skydns/stats",
+			"ImportPath": "github.com/zhang0137/skydns/stats",
 			"Comment": "2.5.2c-3-g30ac5c7",
 			"Rev": "30ac5c761ef23202a9ad288560315890a750db82"
 		},

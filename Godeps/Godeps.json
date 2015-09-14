@@ -1,0 +1,98 @@
+{
+	"ImportPath": "github.com/zhang0137/skydns",
+	"GoVersion": "go1.4.2",
+	"Deps": [
+		{
+			"ImportPath": "bitbucket.org/ww/goautoneg",
+			"Comment": "null-5",
+			"Rev": "75cd24fc2f2c2a2088577d12123ddee5f54e0675"
+		},
+		{
+			"ImportPath": "github.com/beorn7/perks/quantile",
+			"Rev": "b965b613227fddccbfffe13eae360ed3fa822f8d"
+		},
+		{
+			"ImportPath": "github.com/coreos/go-etcd/etcd",
+			"Comment": "v2.0.0-30-g6a4f8f4",
+			"Rev": "6a4f8f4df24080e4358e287f8ff4a3474b0088e5"
+		},
+		{
+			"ImportPath": "github.com/coreos/go-systemd/activation",
+			"Comment": "v3-13-g392c689",
+			"Rev": "392c689e425689acb51976419a8d62878966511f"
+		},
+		{
+			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "ab974be44dc3b7b8a1fb306fb32fe9b9f3864b3d"
+		},
+		{
+			"ImportPath": "github.com/matttproud/golang_protobuf_extensions/pbutil",
+			"Rev": "fc2b8d3a73c4867e51861bbdd5ae3c1f0869dd6a"
+		},
+		{
+			"ImportPath": "github.com/miekg/dns",
+			"Rev": "8395762c3490507cf5a27405fcd0e3d3dc547109"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_golang/model",
+			"Comment": "0.6.0-19-g36659fa",
+			"Rev": "36659fa1ad85ee0dd33822b68a192a814c93a57b"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_golang/prometheus",
+			"Comment": "0.6.0-19-g36659fa",
+			"Rev": "36659fa1ad85ee0dd33822b68a192a814c93a57b"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_golang/text",
+			"Comment": "0.6.0-19-g36659fa",
+			"Rev": "36659fa1ad85ee0dd33822b68a192a814c93a57b"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_model/go",
+			"Comment": "model-0.0.2-12-gfa8ad6f",
+			"Rev": "fa8ad6fec33561be4280a8f0514318c79d7f6cb6"
+		},
+		{
+			"ImportPath": "github.com/prometheus/procfs",
+			"Rev": "c91d8eefde16bd047416409eb56353ea84a186e4"
+		},
+		{
+			"ImportPath": "github.com/rcrowley/go-metrics",
+			"Rev": "1ce93efbc8f9c568886b2ef85ce305b2217b3de3"
+		},
+		{
+			"ImportPath": "github.com/skynetservices/skydns/backends/etcd",
+			"Comment": "2.5.2c-3-g30ac5c7",
+			"Rev": "30ac5c761ef23202a9ad288560315890a750db82"
+		},
+		{
+			"ImportPath": "github.com/skynetservices/skydns/cache",
+			"Comment": "2.5.2c-3-g30ac5c7",
+			"Rev": "30ac5c761ef23202a9ad288560315890a750db82"
+		},
+		{
+			"ImportPath": "github.com/skynetservices/skydns/msg",
+			"Comment": "2.5.2c-3-g30ac5c7",
+			"Rev": "30ac5c761ef23202a9ad288560315890a750db82"
+		},
+		{
+			"ImportPath": "github.com/skynetservices/skydns/server",
+			"Comment": "2.5.2c-3-g30ac5c7",
+			"Rev": "30ac5c761ef23202a9ad288560315890a750db82"
+		},
+		{
+			"ImportPath": "github.com/skynetservices/skydns/stats",
+			"Comment": "2.5.2c-3-g30ac5c7",
+			"Rev": "30ac5c761ef23202a9ad288560315890a750db82"
+		},
+		{
+			"ImportPath": "github.com/stathat/go",
+			"Rev": "01d012b9ee2ecc107cb28b6dd32d9019ed5c1d77"
+		},
+		{
+			"ImportPath": "github.com/ugorji/go/codec",
+			"Rev": "44024c561b3b217e190440d74b97dd254f8e52e8"
+		}
+	]
+}
